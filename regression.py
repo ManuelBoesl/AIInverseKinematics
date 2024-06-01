@@ -1,6 +1,6 @@
 import numpy as np
 from direct_kin import get_homogeneous_transformation, get_single_transformation, get_trans_and_rot
-
+from symbolic_regression import InverseRegression
 
 def calc_jacobian(thetas):
     Jacobian = np.zeros((6, 6))
@@ -35,7 +35,12 @@ def calc_jacobian(thetas):
     return Jacobian
 
 
-def regression(target_pose, initial_theta, max_error=1e-6, max_iterations=1000):
+def regression(target_pose, initial_theta, max_error=1e-5, max_iterations=1000, learning_rate=0.1):
+    jacobian_calculator = InverseRegression()
+
+    if initial_theta.shape != (6, 1):
+        initial_theta = initial_theta.reshape(6, 1)
+
     if target_pose.shape != (6, 1):
         target_pose = target_pose.reshape(6, 1)
 
@@ -47,7 +52,7 @@ def regression(target_pose, initial_theta, max_error=1e-6, max_iterations=1000):
     theta = initial_theta
 
     while error > max_error and iteration < max_iterations:
-        jacobian = calc_jacobian(theta)
+        jacobian = jacobian_calculator.get_jacobian_as_np(theta)  # calculate the Jacobian matrix for the current tar
         jacobian_inv = np.linalg.pinv(jacobian)
 
         pose = get_trans_and_rot(theta).reshape(6, 1)
@@ -56,7 +61,12 @@ def regression(target_pose, initial_theta, max_error=1e-6, max_iterations=1000):
         if theta.shape != (6, 1):
             theta = theta.reshape(6, 1)
 
-        theta = theta.reshape(6, 1) + np.dot(jacobian_inv, target_pose - pose)
+        theta = theta.reshape(6, 1) + learning_rate * np.dot(jacobian_inv, target_pose - pose)
+
+        print("Iteration:", iteration)
+        print("Error:", error)
+        iteration += 1
+
 
     return theta
 
