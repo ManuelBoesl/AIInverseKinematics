@@ -35,7 +35,7 @@ def calc_jacobian(thetas):
     return Jacobian
 
 
-def regression(target_pose, initial_theta, max_error=1e-5, max_iterations=1000, learning_rate=0.1):
+def regression(target_pose, initial_theta, max_iterations=1000, learning_rate=1, max_position_error=1e-4, max_orientation_error=0.1):
     jacobian_calculator = InverseRegression()
 
     if initial_theta.shape != (6, 1):
@@ -51,24 +51,46 @@ def regression(target_pose, initial_theta, max_error=1e-5, max_iterations=1000, 
     iteration = 0
     theta = initial_theta
 
-    while error > max_error and iteration < max_iterations:
+    position_error = np.sqrt(np.sum((target_pose[:3] - initial_pose[:3]) ** 2))
+    orientation_error = np.sqrt(np.sum((target_pose[3:] - initial_pose[3:]) ** 2))
+
+    while (position_error > max_position_error or orientation_error > max_orientation_error) and iteration < max_iterations:
         jacobian = jacobian_calculator.get_jacobian_as_np(theta)  # calculate the Jacobian matrix for the current tar
         jacobian_inv = np.linalg.pinv(jacobian)
 
         pose = get_trans_and_rot(theta).reshape(6, 1)
-        error = np.sqrt(np.sum((target_pose - pose) ** 2))
+        # error = np.sqrt(np.sum((target_pose - pose) ** 2))
+
+        position_error = np.sqrt(np.sum((target_pose[:3] - pose[:3]) ** 2))
+        orientation_error = np.sqrt(np.sum((target_pose[3:] - pose[3:]) ** 2))
 
         if theta.shape != (6, 1):
             theta = theta.reshape(6, 1)
 
+        rot_z = pose[3, 0]
+        rot_y = pose[4, 0]
+        rot_x = pose[5, 0]
+
+        correction_matrix = np.array([[0, -np.sin(rot_z), np.cos(rot_z) * np.cos(rot_y)],
+                                      [0, np.cos(rot_z), np.sin(rot_z) * np.cos(rot_y)],
+                                      [1, 0, -np.sin(rot_y)]])
+
+        zeros_3x3 = np.zeros((3, 3))
+        eye_3x3 = np.eye(3)
+        analytical_to_geometrical_matrix = np.block([[eye_3x3, zeros_3x3], [zeros_3x3, correction_matrix]])
+        geometrical_jacobian = np.dot(analytical_to_geometrical_matrix, jacobian)
+        geometrical_jacobian_inv = np.linalg.pinv(geometrical_jacobian)
+
         theta = theta.reshape(6, 1) + learning_rate * np.dot(jacobian_inv, target_pose - pose)
+        # theta = theta.reshape(6, 1) - learning_rate * np.dot(geometrical_jacobian_inv, target_pose - pose)
 
         print("Iteration:", iteration)
         print("Error:", error)
+        print(f"Position Error: {position_error}; Orientation Error: {orientation_error}")
         iteration += 1
 
 
-    return theta
+    return theta, iteration
 
 
 if __name__ == '__main__':

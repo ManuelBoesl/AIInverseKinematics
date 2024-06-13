@@ -46,9 +46,9 @@ def get_trans_and_rot(theta_list):
     #
     # euler_angles = rotation.as_euler('ZYX', degrees=False)  # Change the 'xyz' order if necessary
 
-    x_rot = np.arctan2(rotation_matrix[1, 0], rotation_matrix[0, 0])
+    z_rot = np.arctan2(rotation_matrix[1, 0], rotation_matrix[0, 0])
     y_rot = np.arcsin(-rotation_matrix[2, 0])
-    z_rot = np.arctan2(rotation_matrix[2, 1], rotation_matrix[2, 2])
+    x_rot = np.arctan2(rotation_matrix[2, 1], rotation_matrix[2, 2])
 
     euler_angles = np.array([x_rot, y_rot, z_rot])
 

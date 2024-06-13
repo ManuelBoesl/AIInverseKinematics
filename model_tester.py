@@ -18,7 +18,10 @@ model = models.load_model('my_model.keras', custom_objects={'custom_loss': custo
 # test thetas
 # theta_list = [1, 1, 1, 1, 1, 1]
 # theta_list = [0.37467555, 0.95108056, 0.73347055, 0.59873642, 0.15611025, 0.1563325]
-theta_list = [-0.78828768,  2.83192151,  1.45766093,  0.61988954, -2.16129862, -2.16145018]
+# theta_list = [-0.78828768,  2.83192151,  1.45766093,  0.61988954, -2.16129862, -2.16145018]
+theta_list = [-0.06894051, -1.58825, 1.6226326, 4.69494, -1.6105898, -0.09285152]
+# theta_list = [-0.06894051, -1.58825, 0, 4.69494, 0, -0.09285152]
+
 trans_and_rot = get_trans_and_rot(theta_list).reshape(1, 6)
 
 # scale the new unseen data
@@ -46,7 +49,8 @@ data_to_plot[0, :] = trans_and_rot_original
 data_to_plot[1, :] = trans_and_rot_predicted
 plot_3d(data_to_plot)
 
-regression_theta = regression(trans_and_rot_original, predicted_thetas, learning_rate=0.5)
+regression_theta, iteration = regression(trans_and_rot_original, predicted_thetas, learning_rate=0.5)
+# regression_theta = regression(trans_and_rot_original, predicted_thetas)
 regression_pose = get_trans_and_rot(regression_theta)
 regression_error = np.mean(np.sqrt(np.square(trans_and_rot_original - regression_pose)))
 

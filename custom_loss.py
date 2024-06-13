@@ -46,9 +46,9 @@ def get_rot_and_trans_tensor(theta_list):
     translation = complete_trans[:, :3, 3]
     rotation = complete_trans[:, :3, :3]
 
-    x_rot = tf.atan2(rotation[:, 1, 0], rotation[:, 0, 0])
+    z_rot = tf.atan2(rotation[:, 1, 0], rotation[:, 0, 0])
     y_rot = tf.asin(-rotation[:, 2, 0])
-    z_rot = tf.atan2(rotation[:, 2, 1], rotation[:, 2, 2])
+    x_rot = tf.atan2(rotation[:, 2, 1], rotation[:, 2, 2])
 
     trans_and_rot = tf.concat([translation, tf.stack([x_rot, y_rot, z_rot], axis=-1)], axis=-1)
 

@@ -54,9 +54,9 @@ class InverseRegression:
         translation = T_06[:3, 3]
         rotation = T_06[:3, :3]
 
-        x_rot = sym.atan2(rotation[1, 0], rotation[0, 0])
+        z_rot = sym.atan2(rotation[1, 0], rotation[0, 0])
         y_rot = sym.asin(-rotation[2, 0])
-        z_rot = sym.atan2(rotation[2, 1], rotation[2, 2])
+        x_rot = sym.atan2(rotation[2, 1], rotation[2, 2])
 
         euler_angles = sym.Matrix([x_rot, y_rot, z_rot])
 

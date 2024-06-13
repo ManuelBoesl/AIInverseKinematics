@@ -16,6 +16,49 @@ def generate_pseudo_data(data_size, output_size, input_size):
 def generate_data(data_size, output_size, input_size):
     # Generate the target data. Is is a 1000x6 matrix, where each element is between -pi and pi with a seed
     np.random.seed(42)
+    # target_data = np.random.rand(data_size, output_size) * 2 * np.pi - np.pi
+    target_data = np.array([])
+    input_data = np.array([])
+
+    i = 0
+    while input_data.shape[0] < data_size:
+        new_target_data = np.random.rand(output_size) * 2 * np.pi - np.pi
+        new_input_data = get_trans_and_rot(new_target_data)
+
+        add_data = True
+
+        for j in range(input_data.shape[0]):
+            if np.linalg.norm(new_input_data - input_data[j]) < 0.5:
+                add_data = False
+                break
+
+        if add_data:
+            if input_data.shape[0] == 0:
+                input_data = np.array(new_input_data)
+                target_data = np.array(new_target_data.reshape(1, output_size))
+            else:
+                input_data = np.append(input_data, new_input_data, axis=0)
+                target_data = np.append(target_data, new_target_data.reshape(1, output_size), axis=0)
+            i += 1
+            print(i)
+
+
+
+    print("Data generated successfully")
+
+    # save the data as a numpy file
+    np.save('input_data.npy', input_data)
+    np.save('target_data.npy', target_data)
+
+    print("Data saved successfully")
+
+    plot_3d(input_data)
+
+    print("Data plotted successfully")
+
+def generate_data_old(data_size, output_size, input_size):
+    # Generate the target data. Is is a 1000x6 matrix, where each element is between -pi and pi with a seed
+    np.random.seed(42)
     target_data = np.random.rand(data_size, output_size) * 2 * np.pi - np.pi
 
     input_data = np.ones((data_size, input_size))
@@ -83,7 +126,7 @@ def clean_data(input_data, target_data):
 #     return np.array(accepted_points), np.array(accepted_targets)
 
 if __name__ == '__main__':
-    data_size = 600
+    data_size = 1200
     input_size = 6
     output_size = 6
     generate_data(data_size, output_size, input_size)

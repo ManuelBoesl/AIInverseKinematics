@@ -45,8 +45,8 @@ def generate_training_joints():
 input_size = 6
 hidden_layer_size = 6
 output_size = 6
-number_of_hidden_layers = 2
-number_of_epochs = 300
+number_of_hidden_layers = 6
+number_of_epochs = 140
 
 # Generate some dummy data for demonstration
 # input_data = np.random.rand(1000, input_size)

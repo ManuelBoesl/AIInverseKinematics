@@ -58,10 +58,10 @@ def get_forward_pose(thetas):
     rotation_matrix = complete_trans[:3, :3]
 
     # Convert rotation matrix to Euler angles
-    x_rot = torch.atan2(rotation_matrix[1, 0], rotation_matrix[0, 0])
+    z_rot = torch.atan2(rotation_matrix[1, 0], rotation_matrix[0, 0])
     # y_rot = torch.atan2(-rotation_matrix[2, 0], torch.sqrt(rotation_matrix[2, 1] ** 2 + rotation_matrix[2, 2] ** 2))
     y_rot = torch.asin(-rotation_matrix[2, 0])
-    z_rot = torch.atan2(rotation_matrix[2, 1], rotation_matrix[2, 2])
+    x_rot = torch.atan2(rotation_matrix[2, 1], rotation_matrix[2, 2])
 
     print("Calculated Rotation:")
     print(x_rot, y_rot, z_rot)
